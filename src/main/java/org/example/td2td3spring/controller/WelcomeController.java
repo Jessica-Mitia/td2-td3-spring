@@ -9,14 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class WelcomeController {
     @GetMapping("/welcome")
-    public ResponseEntity<String> welcome(@RequestParam String name) {
-        if (name == null) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Name is required");
+    public ResponseEntity<String> welcome(@RequestParam(value = "name", required = false) String name) {
+        if (name == null || name.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Missing name parameter");
         }
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body("Welcome " + name);
+        return ResponseEntity.ok("Welcome " + name);
     }
 }

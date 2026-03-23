@@ -18,22 +18,31 @@ public class StudentController {
 
     @PostMapping("/students")
     public ResponseEntity<List<Student>> createStudent(@RequestBody List<Student> students) {
-        studentService.saveStudents(students);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(this.studentService.getAllStudents());
+        try {
+            studentService.saveStudents(students);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(studentService.getAllStudents());
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/students")
-    public ResponseEntity<List<Student>> getAllStudents(@RequestHeader(value = "Accept", required = false) String accept) {
-        List<Student> students = studentService.getAllStudents();
-        if (accept == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        if (accept.equalsIgnoreCase("application/json") || accept.equalsIgnoreCase("text/plain")) {
-            return new ResponseEntity<>(students, HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<?> getAllStudents(@RequestHeader(value = "Accept", required = false) String accept) {
+        try {
+            if (accept == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            if (accept.equalsIgnoreCase("application/json")) {
+                return new ResponseEntity<>(studentService.getAllStudents(), HttpStatus.OK);
+            } else if (accept.equalsIgnoreCase("text/plain")) {
+                return new ResponseEntity<>(studentService.getAllStudents().toString(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
