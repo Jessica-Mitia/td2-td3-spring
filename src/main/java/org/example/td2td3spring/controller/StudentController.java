@@ -1,6 +1,8 @@
 package org.example.td2td3spring.controller;
 
 import org.example.td2td3spring.entity.Student;
+import org.example.td2td3spring.exception.BadRequestException;
+import org.example.td2td3spring.exception.NotImplementedException;
 import org.example.td2td3spring.service.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,49 +20,21 @@ public class StudentController {
 
     @PostMapping("/students")
     public ResponseEntity<?> createStudent(@RequestBody List<Student> students) {
-        for (Student student : students) {
-            if (student.getReference() == null || student.getReference().isBlank()) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .header("Content-Type", "text/plain")
-                        .body("Student.reference cannot be null");
-            }
-            if (student.getFirstName() == null || student.getFirstName().isBlank()) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .header("Content-Type", "text/plain")
-                        .body("Student.lastName cannot be null");
-            }
-            if (student.getLastName() == null || student.getLastName().isBlank()) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .header("Content-Type", "text/plain")
-                        .body("Student.firstName cannot be null");
-            }
-        }
         studentService.saveStudents(students);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .header("Content-Type", "application/json")
-                .body(students);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/students")
+    @GetMapping(value = "/students", produces = {"application/json", "text/plain"})
     public ResponseEntity<?> getAllStudents(@RequestHeader(value = "Accept", required = false) String accept) {
-        try {
-            if (accept == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            if (accept.equalsIgnoreCase("application/json")) {
-                return new ResponseEntity<>(studentService.getAllStudents(), HttpStatus.OK);
-            } else if (accept.equalsIgnoreCase("text/plain")) {
-                return new ResponseEntity<>(studentService.getAllStudents().toString(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        if (accept == null) {
+            throw new BadRequestException("Accept header is required");
         }
+        if (accept.equalsIgnoreCase("application/json")) {
+            return ResponseEntity.ok(studentService.getAllStudents());
+        }
+        if (accept.equalsIgnoreCase("text/plain")) {
+            return ResponseEntity.ok(studentService.getAllStudentsAsText());
+        }
+        throw new NotImplementedException("Format not supported");
     }
 }
