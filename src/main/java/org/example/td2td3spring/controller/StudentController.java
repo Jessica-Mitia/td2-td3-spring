@@ -17,15 +17,33 @@ public class StudentController {
     }
 
     @PostMapping("/students")
-    public ResponseEntity<List<Student>> createStudent(@RequestBody List<Student> students) {
-        try {
-            studentService.saveStudents(students);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(studentService.getAllStudents());
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> createStudent(@RequestBody List<Student> students) {
+        for (Student student : students) {
+            if (student.getReference() == null || student.getReference().isBlank()) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "text/plain")
+                        .body("Student.reference cannot be null");
+            }
+            if (student.getFirstName() == null || student.getFirstName().isBlank()) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "text/plain")
+                        .body("Student.lastName cannot be null");
+            }
+            if (student.getLastName() == null || student.getLastName().isBlank()) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .header("Content-Type", "text/plain")
+                        .body("Student.firstName cannot be null");
+            }
         }
+        studentService.saveStudents(students);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header("Content-Type", "application/json")
+                .body(students);
     }
 
     @GetMapping("/students")
