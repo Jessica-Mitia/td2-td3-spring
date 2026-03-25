@@ -21,7 +21,9 @@ public class StudentController {
     @PostMapping("/students")
     public ResponseEntity<?> createStudent(@RequestBody List<Student> students) {
         studentService.saveStudents(students);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(studentService.getAllStudents());
     }
 
     @GetMapping(value = "/students", produces = {"application/json", "text/plain"})
