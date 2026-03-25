@@ -1,4 +1,7 @@
-package org.example.td2td3spring.exeption;
+package org.example.td2td3spring.exception;
 
-public class BadRequestExeption {
+public class BadRequestException extends RuntimeException {
+    public BadRequestException(String message) {
+        super(message);
+    }
 }
